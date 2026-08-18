@@ -24,20 +24,21 @@ An Android floating overlay board helper for the **Survivor.io — Rainbow Mine*
 2. Install **PCAPdroid-mitm** APK.
 3. Open PCAPdroid, go to **Settings -> Traffic Inspection**, select **TLS Decryption (mitmproxy)**, and follow the prompt to install the PCAPdroid CA Certificate into Android User Certificates.
 
-### Step 2: Install the Python Addon Script
-1. Copy the protected addon script `naval_live_addon.py` and the `pyarmor_runtime_000000` folder into the PCAPdroid-mitm user addons directory on your Android device:
+### Step 2: Install the Addon Zip
+1. Download `pcapdroid_addon_rainbow_mine.zip` from this repository.
+2. Extract `pcapdroid_addon_rainbow_mine.zip` into the PCAPdroid-mitm user addons directory on your Android device:
    ```
    /sdcard/Android/data/com.emanuelef.remote_packet_capture.mitm/files/addons/
    ```
-   *(Or select "Add user addon" inside PCAPdroid-mitm settings and pick `naval_live_addon.py`)*.
-2. In PCAPdroid, verify that the **Survivor.io Addon** is enabled.
+   *(Or select "Add user addon" inside PCAPdroid-mitm settings and select `naval_live_addon.py`)*.
+3. In PCAPdroid, verify that the **Survivor.io Addon** is enabled.
 
 ### Step 3: PCAPdroid Configuration
 Configure PCAPdroid with the following settings:
 * **Target App**: Select **Survivor.io** (`com.habby.survivorio`).
 * **Traffic Inspection**: Set to **TLS Decryption (mitmproxy)**.
 * **Block QUIC Traffic**: **Enable** (Check "Block QUIC" under PCAPdroid Settings so the game falls back from UDP/QUIC to TLS/TCP).
-* **Dump Mode**: None (or HTTP Exporter if saving captures).
+* **Dump Mode**: None.
 
 ### Step 4: Run the Rainbow Mine Board App
 1. Open **Survivor.io — Rainbow Mine Board**.
@@ -48,12 +49,10 @@ Configure PCAPdroid with the following settings:
 
 ---
 
-## 📂 Repository Contents
+## 📂 Downloads
 
-* `SurvivorRainbowMineBoard.apk`: Compiled Android app APK (~5.78 MB).
-* `naval_live_addon.py`: Protected Python addon for PCAPdroid-mitm.
-* `pyarmor_runtime_000000/`: Native ARM64 runtime library for the protected addon.
-* `android_naval_monitor/`: Full Kotlin Android project source code.
+* `SurvivorRainbowMineBoard.apk`: Android app APK (~6.06 MB).
+* `pcapdroid_addon_rainbow_mine.zip`: Pre-packaged addon ZIP (contains `naval_live_addon.py` + `pyarmor_runtime_000000/`).
 
 ---
 
