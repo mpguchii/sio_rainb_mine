@@ -1,0 +1,15 @@
+.gradle_portable/
+.android_sdk/
+build/
+temp_export/
+__pycache__/
+*.pyc
+*.pcap
+*.naval_decoded.json
+*.naval_pcap.json
+sslkeylogfile.txt
+captures/
+pickaxe_raw.webp
+pickaxe.png
+rootca.p12
+rootca.crt
