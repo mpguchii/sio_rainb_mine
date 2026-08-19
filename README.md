@@ -1,60 +1,83 @@
-# Survivor.io — Rainbow Mine Board
+# Survivor.io Rainbow Mine Monitor
 
-An Android floating overlay board helper for the **Survivor.io — Rainbow Mine** event. It receives real-time event grid state from PCAPdroid and displays the mine grid on a floating overlay window over the game.
+Android floating-window monitor for the Survivor.io Rainbow Mine event. It receives board updates from a PCAPdroid-MITM addon and paints the board over the game.
 
-**Powered by MP**
+## What is included
 
----
+- `SurvivorRainbowMineBoard.apk` — Android monitor application.
+- `naval_live_addon.py` — PCAPdroid-MITM addon.
+- `android_naval_monitor/` — Kotlin source project.
 
-## 📱 Required App Downloads
+The addon sends compact JSON updates to the Android app through UDP `127.0.0.1:8086`. It does not modify the game or send game actions.
 
-1. **PCAPdroid (Network Capture)**:
-   * Download from Google Play Store: [PCAPdroid on Play Store](https://play.google.com/store/apps/details?id=com.emanuelef.remote_packet_capture)
-2. **PCAPdroid-mitm Addon (TLS Decryption Engine)**:
-   * Download the APK from GitHub: [PCAPdroid-mitm Releases](https://github.com/emanuele-f/PCAPdroid-mitm/releases)
-3. **Survivor.io (Patched APK)**:
-   * The Survivor.io APK must be patched with `apk-mitm` (or custom network security config) to allow user-installed CA certificates.
+## Requirements
 
----
+Install on the Android device:
 
-## 🛠️ Step-by-Step Setup Guide
+1. Survivor.io from the normal store installation.
+2. [PCAPdroid](https://play.google.com/store/apps/details?id=com.emanuelef.remote_capture).
+3. [PCAPdroid-mitm](https://github.com/emanuelef/PCAPdroid-mitm/releases).
+4. `SurvivorRainbowMineBoard.apk` from this repository.
 
-### Step 1: Install PCAPdroid & PCAPdroid-mitm Addon
-1. Install **PCAPdroid** from the Google Play Store.
-2. Install **PCAPdroid-mitm** APK.
-3. Open PCAPdroid, go to **Settings -> Traffic Inspection**, select **TLS Decryption (mitmproxy)**, and follow the prompt to install the PCAPdroid CA Certificate into Android User Certificates.
+The Survivor.io package used by the filters is `com.dxx.firenow`.
 
-### Step 2: Install the Python Addon Script
-1. Copy the protected addon script `naval_live_addon.py` and the `pyarmor_runtime_000000` folder into the PCAPdroid-mitm user addons directory on your Android device:
-   ```
-   /sdcard/Android/data/com.emanuelef.remote_packet_capture.mitm/files/addons/
-   ```
-   *(Or select "Add user addon" inside PCAPdroid-mitm settings and pick `naval_live_addon.py`)*.
-2. In PCAPdroid, verify that the **Survivor.io Addon** is enabled.
+## Complete setup
 
-### Step 3: PCAPdroid Configuration
-Configure PCAPdroid with the following settings:
-* **Target App**: Select **Survivor.io** (`com.habby.survivorio`).
-* **Traffic Inspection**: Set to **TLS Decryption (mitmproxy)**.
-* **Block QUIC Traffic**: **Enable** (Check "Block QUIC" under PCAPdroid Settings so the game falls back from UDP/QUIC to TLS/TCP).
-* **Dump Mode**: None (or HTTP Exporter if saving captures).
+### 1. Install and configure the monitor app
 
-### Step 4: Run the Rainbow Mine Board App
-1. Open **Survivor.io — Rainbow Mine Board**.
-2. Tap **Grant Permission** to enable the Floating Window (System Alert Window).
-3. Tap **START MONITOR** (Listens on UDP port `8086`).
-4. Start capture in **PCAPdroid**.
-5. Launch **Survivor.io** and open the Rainbow Mine event. The floating overlay board will automatically appear and reveal the event grid!
+1. Install `SurvivorRainbowMineBoard.apk`.
+2. Open it and grant **Display over other apps** permission.
+3. Leave the UDP port set to `8086`.
+4. Tap **START MONITOR**. Keep the floating window visible while playing.
 
----
+### 2. Install the PCAPdroid-MITM addon
 
-## 📂 Repository Contents
+Copy `naval_live_addon.py` to this folder on the Android device:
 
-* `SurvivorRainbowMineBoard.apk`: Compiled Android app APK (~5.78 MB).
-* `naval_live_addon.py`: Protected Python addon for PCAPdroid-mitm.
-* `pyarmor_runtime_000000/`: Native ARM64 runtime library for the protected addon.
-* `android_naval_monitor/`: Full Kotlin Android project source code.
+```text
+/Downloads/PCAPdroid_addons/
+```
 
----
+In PCAPdroid-MITM, open the user-addon screen, select that file, and enable/reload it. If the file picker displays shared storage, choose `Download/PCAPdroid_addons/` (Android may show `Download` instead of `/Downloads`).
 
-*Powered by MP*
+Do not rename the file. The addon must be loaded by PCAPdroid-MITM; simply storing it on the device is not enough.
+
+### 3. Configure PCAPdroid
+
+1. Open PCAPdroid.
+2. In **Select application**, choose **Survivor.io** (`com.dxx.firenow`).
+3. In **Decryption rules**, add the same Survivor.io application. If rules can be entered by hostname, also add `prod-game.survivorio.com`.
+4. Enable **TLS decryption / PCAPdroid-MITM**.
+5. Install and trust the PCAPdroid CA certificate when Android asks.
+6. Set **Block QUIC** to **Always** so the game uses decryptable TLS/TCP traffic.
+7. Start the capture.
+
+### 4. Capture the board
+
+Use this order:
+
+```text
+SurvivorRainbowMineBoard → START MONITOR
+PCAPdroid-MITM → addon enabled
+PCAPdroid → capture started
+Survivor.io → open Rainbow Mine
+```
+
+When the game downloads a new board or registers a selection, the overlay updates automatically. Orange cells are unrevealed pieces, green cells are discovered pieces, blue cells are selected empty cells, and dark cells are still unknown.
+
+## Troubleshooting
+
+- **No floating window:** grant the overlay permission and press **START MONITOR** again.
+- **Window is visible but never updates:** confirm that the monitor is listening on UDP `8086`, and that the addon is enabled in PCAPdroid-MITM.
+- **TLS packets remain encrypted:** reinstall/enable the PCAPdroid CA certificate, keep TLS decryption enabled, and set Block QUIC to **Always**.
+- **No game traffic:** verify that the selected app is `com.dxx.firenow`, not PCAPdroid itself.
+- **Addon errors after obfuscation:** use the plain `naval_live_addon.py`. Python `marshal`/native runtimes are tied to the Python version and Android ABI used by PCAPdroid-MITM.
+- **New board is not shown:** stop and restart the monitor, reload the addon, and start a fresh capture.
+
+## Development
+
+The Android source is in `android_naval_monitor/`. The app listens for JSON messages containing `type`, `board_number`, `rows`, `cols`, `matrix`, and `selected`. The addon extracts Survivor.io Dxx messages `19702`, `19709`, and `19710` and converts them to that JSON format.
+
+## Disclaimer
+
+This project is a local monitoring/debugging tool. Use it only with traffic and devices you are authorized to inspect, and comply with the game's terms of service.
